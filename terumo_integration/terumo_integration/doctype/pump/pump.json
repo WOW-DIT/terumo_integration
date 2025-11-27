@@ -23,6 +23,7 @@
   "section_break_vwhvr",
   "operation_status",
   "set_flow_rate",
+  "volume_delivered",
   "column_break_w20p7",
   "alarm_status",
   "increment_in_value_delivered",
@@ -43,7 +44,9 @@
   "dilution_rate",
   "column_break_iqije",
   "dosage_unit",
-  "dilution_unit"
+  "dilution_unit",
+  "alarms_tab",
+  "alarms_template"
  ],
  "fields": [
   {
@@ -233,11 +236,28 @@
    "fieldname": "dilution_unit",
    "fieldtype": "Data",
    "label": "Dilution Unit"
+  },
+  {
+   "fieldname": "alarms_tab",
+   "fieldtype": "Tab Break",
+   "label": "Alarms"
+  },
+  {
+   "fieldname": "alarms_template",
+   "fieldtype": "Link",
+   "label": "Alarms Template",
+   "options": "Pump Alarms Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "volume_delivered",
+   "fieldtype": "Float",
+   "label": "Volume Delivered (mL)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-27 14:37:44.327406",
+ "modified": "2025-11-27 15:44:27.454180",
  "modified_by": "Administrator",
  "module": "Terumo Integration",
  "name": "Pump",

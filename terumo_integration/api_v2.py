@@ -5,11 +5,6 @@ import requests
 @frappe.whitelist(allow_guest=True)
 def event_webhook(
     is_rack,
-    rack_id: str=None,
-    rack_cmd: str=None,
-    firmware: str=None,
-    rack_time: str=None,
-    rack_status: dict=None,
     start_second: str=None,
     end_second: str=None,
     channels=None,
@@ -31,99 +26,45 @@ def event_webhook(
     occlusion_pressure_settings: dict=None,
     increment_rate: str=None,
 ):
-    if is_rack:
-        rack_op_status = rack_status.get("operation_status")
-        power_type = rack_status.get("power_type")
-        battery_status = rack_status.get("battery_status")
+    
+    pump_op_status = map_pump_op_status(pump_op_status)
 
-        rack = update_rack(
-            rack_id,
-            firmware,
-            rack_op_status,
-            power_type,
-            battery_status,
-        )
+    pump = update_pump(
+        device_id=pump_id,
+        pump_type=pump_type,
+        operation_status=pump_op_status,
+        set_flow_rate=set_flow_rate,
+        increment_rate=increment_rate,
+        # alarm_status=pump_alarm_status,
+        syringe_status=syringe_status,
+        volume_delivered=volume_delivered,
+        pump_power_status=pump_power_status,
+    )
 
-        for ch in channels:
-            channel_id = ch.get("channel")
-            pump_id = ch.get("device_id")
-            normstatus = ch.get("normstatus")
+    active_alarms = update_alarm_statuses(pump.alarms_template, pump_alarm_status)
 
-            if not normstatus or pump_id in ["X", "?"]:
-                continue
-                # frappe.throw("Empty channel")
+    notify_client(
+        device_id=pump_id,
+        operation_status=pump_op_status,
+        flow_rate=set_flow_rate,
+        increment_rate=increment_rate,
+        alarm_status=pump_alarm_status,
+        active_alarms=active_alarms,
+        patient_id=pump.patient_id,
+    )
 
-            start_second = normstatus.get("start_second")
-            end_second = normstatus.get("end_second")
-            pump_op_status = normstatus.get("operation_status")
-            set_flow_rate = float(normstatus.get("set_flow_rate"))
-            increment_rate = float(normstatus.get("increment_rate"))
-            pump_alarm_status = normstatus.get("alarm_status")
-
-            pump = update_pump(
-                pump_id,
-                pump_type,
-                pump_op_status,
-                set_flow_rate,
-                increment_rate,
-                pump_alarm_status,
-                rack.name,
-            )
-
-            notify_client(
-                device_id=pump_id,
-                operation_status=pump_op_status,
-                flow_rate=set_flow_rate,
-                increment_rate=increment_rate,
-                alarm_status=pump_alarm_status,
-                channel=channel_id,
-                patient_id=pump.patient_id,
-            )
-
-            create_pump_read(
-                pump_id=pump.name,
-                start_second=start_second,
-                end_second=end_second,
-                operation_status=pump_op_status,
-                set_flow_rate=set_flow_rate,
-                increment_in_value_delivered=increment_rate,
-                alarm=pump_alarm_status,
-            )
-            if pump.patient_id:
-                ## Send to HIS
-                pass
-
-    else:
-        pump = update_pump(
-            pump_id,
-            pump_type,
-            pump_op_status,
-            set_flow_rate,
-            increment_rate,
-            pump_alarm_status,
-        )
-
-        notify_client(
-            device_id=pump_id,
-            operation_status=pump_op_status,
-            flow_rate=set_flow_rate,
-            increment_rate=increment_rate,
-            alarm_status=pump_alarm_status,
-            patient_id=pump.patient_id,
-        )
-
-        create_pump_read(
-            pump_id=pump.name,
-            start_second=start_second,
-            end_second=end_second,
-            operation_status=pump_op_status,
-            set_flow_rate=set_flow_rate,
-            increment_in_value_delivered=increment_rate,
-            alarm=pump_alarm_status,
-        )
-        if pump.patient_id:
-            ## Send to HIS
-            pass
+    create_pump_read(
+        pump_id=pump.name,
+        start_second=start_second,
+        end_second=end_second,
+        operation_status=pump_op_status,
+        set_flow_rate=set_flow_rate,
+        increment_in_value_delivered=increment_rate,
+        # alarm=pump_alarm_status,
+    )
+    if pump.patient_id:
+        ## Send to HIS
+        pass
 
     frappe.db.commit()
 
@@ -160,8 +101,11 @@ def update_pump(
     operation_status,
     set_flow_rate,
     increment_rate,
-    alarm_status,
-    rack_id=None
+    # alarm_status = None,
+    syringe_status: float=None,
+    volume_delivered: float=None,
+    pump_power_status: dict=None,
+    rack_id=None,
 ):
     pumps = frappe.get_all("Pump", {"name": device_id})
     if pumps:
@@ -171,12 +115,21 @@ def update_pump(
         pump = frappe.new_doc("Pump")
         pump.device_id = device_id
         pump.device_name = device_id
+        pump.pump_type = pump_type
+        pump.alarms_template = pump_type
 
-    pump.pump_type = pump_type
+    pump.syringe_status = syringe_status
     pump.operation_status = operation_status
     pump.set_flow_rate = set_flow_rate
+    pump.volume_delivered = volume_delivered
     pump.increment_in_value_delivered = increment_rate
-    pump.alarm_status = alarm_status
+    # pump.alarm_status = alarm_status
+
+    ## Power Status
+    pump.battery_level = pump_power_status.get("battery_level")
+    pump.power_type = pump_power_status.get("power_type")
+    pump.sub_battery_status = "Normal" if pump_power_status.get("sub_battery") == 1 else "Abnormal"
+
     if rack_id:
         pump.rack = rack_id
     pump.save(ignore_permissions=True)
@@ -191,7 +144,7 @@ def create_pump_read(
     operation_status,
     set_flow_rate,
     increment_in_value_delivered,
-    alarm,
+    # alarm,
 ):
     read = frappe.new_doc("Pump Read")
     read.pump_id = pump_id
@@ -200,7 +153,7 @@ def create_pump_read(
     read.set_flow_rate = set_flow_rate
     read.increment_in_value_delivered = increment_in_value_delivered
     read.operation_status = operation_status
-    read.alarm = alarm
+    # read.alarm = alarm
     read.insert(ignore_permissions=True)
 
 
@@ -210,6 +163,7 @@ def notify_client(
     flow_rate,
     increment_rate,
     alarm_status,
+    active_alarms=[],
     vtbi=None,
     channel=None,
     patient_id=None,
@@ -226,7 +180,8 @@ def notify_client(
             "operation_status": operation_status,
             "flow_rate": flow_rate,
             "increment_rate": increment_rate,
-            "alarm_status": alarm_status,
+            "alarm_status": "No alarm",
+            "active_alarms": active_alarms,
             "vtbi": vtbi,
             "channel": channel,
             "patient_id": patient_id,
@@ -244,3 +199,45 @@ def get_pump_devices(patient_room=None):
         )
     
     return frappe.get_list("Pump", fields=["*"])
+
+
+def map_pump_op_status(pump_op_status):
+    status = frappe.db.sql("""
+        SELECT s.name
+        FROM `tabPump Operation Status` AS s
+        WHERE s.code=%s OR s.standalone_mapping_value=%s
+        """,
+        (pump_op_status, pump_op_status,),
+        as_dict=True
+    )
+
+    if status and status[0].name:
+        return status[0].name
+    
+    return None
+
+def update_alarm_statuses(template_name: str, pump_alarm_statuses: list) -> list:
+    template = frappe.get_doc("Pump Alarms Template", template_name)
+    
+    active_alarms = []
+    
+    rows_by_bit = {row.bit_number: row for row in template.alarms}
+
+    for row in template.alarms:
+        row.active = 0
+
+    for bit_number, bit_value in enumerate(pump_alarm_statuses):
+        ## Get child table row by bit_number, or index from alarms list.
+        row = rows_by_bit.get(bit_number)
+        if not row:
+            continue
+        
+        if bit_value == 1:
+            row.active = 1
+            active_alarms.append(row.description)
+        else:
+            row.active = 0  # للتوضيح، مع إنه صفّرناها فوق
+
+    template.save(ignore_permissions=True)
+
+    return active_alarms
