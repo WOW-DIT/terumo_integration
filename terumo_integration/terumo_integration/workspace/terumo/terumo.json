@@ -1,0 +1,60 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"GGEVMLxm8k\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Terumo</span>\",\"col\":12}},{\"id\":\"h3E4prT4Ue\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Patient Rooms\",\"col\":3}},{\"id\":\"Fy-3JE-Go5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Assigned Pumps\",\"col\":3}},{\"id\":\"n_kK_qJdBe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Available Pumps\",\"col\":3}},{\"id\":\"p7xu1S27bA\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"cRb4Nvf2GX\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Racks\",\"col\":4}}]",
+ "creation": "2025-10-26 11:59:16.744775",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "image-view",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Terumo",
+ "links": [],
+ "modified": "2025-10-29 11:42:12.646987",
+ "modified_by": "Administrator",
+ "module": "Terumo Integration",
+ "name": "Terumo",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Rack",
+   "label": "Racks",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 23.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Patient Rooms",
+   "link_to": "Patient Room",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Assigned Pumps",
+   "link_to": "Pump",
+   "stats_filter": "[[\"Pump\",\"patient_id\",\"is\",\"set\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "format": "Available",
+   "label": "Available Pumps",
+   "link_to": "Pump",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Terumo"
+}

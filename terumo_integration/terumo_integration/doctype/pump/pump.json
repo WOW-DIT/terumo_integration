@@ -1,0 +1,265 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:device_id",
+ "creation": "2025-10-16 13:57:41.132523",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "patient_room",
+  "column_break_qgqev",
+  "patient_id",
+  "section_break_l0mt6",
+  "device_name",
+  "ip_address",
+  "channel",
+  "column_break_2upiz",
+  "device_id",
+  "rack",
+  "pump_type",
+  "syringe_status",
+  "section_break_vwhvr",
+  "operation_status",
+  "set_flow_rate",
+  "column_break_w20p7",
+  "alarm_status",
+  "increment_in_value_delivered",
+  "power_status_tab",
+  "battery_level",
+  "power_type",
+  "sub_battery_status",
+  "operation_monitor_tab",
+  "occlusion_monitor",
+  "alarm_sound_status",
+  "column_break_pkhi0",
+  "keypad_lock_status",
+  "plunger_status_monitor",
+  "reading_mode_tab",
+  "weight",
+  "section_break_p8n5a",
+  "dosage_rate",
+  "dilution_rate",
+  "column_break_iqije",
+  "dosage_unit",
+  "dilution_unit"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "label": "Device Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "label": "IP Address"
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "rack",
+   "fieldtype": "Link",
+   "label": "Rack",
+   "options": "Rack"
+  },
+  {
+   "fieldname": "operation_status",
+   "fieldtype": "Link",
+   "label": "Operation Status",
+   "options": "Pump Operation Status"
+  },
+  {
+   "fieldname": "set_flow_rate",
+   "fieldtype": "Float",
+   "label": "Set Flow Rate (mL/h)"
+  },
+  {
+   "fieldname": "increment_in_value_delivered",
+   "fieldtype": "Float",
+   "label": "Increment In Value Delivered"
+  },
+  {
+   "fieldname": "alarm_status",
+   "fieldtype": "Link",
+   "label": "Alarm Status",
+   "options": "Pump Alarm Status"
+  },
+  {
+   "fieldname": "column_break_2upiz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_vwhvr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "patient_id",
+   "fieldtype": "Link",
+   "label": "Patient ID",
+   "options": "Patients"
+  },
+  {
+   "fieldname": "column_break_w20p7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pump_type",
+   "fieldtype": "Select",
+   "label": "Pump Type",
+   "options": "Syringe Pump\nInfusion Pump"
+  },
+  {
+   "fieldname": "patient_room",
+   "fieldtype": "Link",
+   "label": "Patient Room",
+   "options": "Patient Room"
+  },
+  {
+   "fieldname": "column_break_qgqev",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_l0mt6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Channel"
+  },
+  {
+   "depends_on": "eval: doc.pump_type === \"Syringe Pump\"",
+   "fieldname": "syringe_status",
+   "fieldtype": "Int",
+   "label": "Syringe Status"
+  },
+  {
+   "fieldname": "dosage_rate",
+   "fieldtype": "Float",
+   "label": "Dosage Rate"
+  },
+  {
+   "fieldname": "power_status_tab",
+   "fieldtype": "Tab Break",
+   "label": "Power Status"
+  },
+  {
+   "fieldname": "battery_level",
+   "fieldtype": "Int",
+   "label": "Battery Level"
+  },
+  {
+   "fieldname": "power_type",
+   "fieldtype": "Link",
+   "label": "Power Type",
+   "options": "Pump Power Type"
+  },
+  {
+   "fieldname": "sub_battery_status",
+   "fieldtype": "Select",
+   "label": "Sub Battery Status ",
+   "options": "Normal\nAbnormal"
+  },
+  {
+   "fieldname": "operation_monitor_tab",
+   "fieldtype": "Tab Break",
+   "label": "Operation Monitor"
+  },
+  {
+   "fieldname": "occlusion_monitor",
+   "fieldtype": "Float",
+   "label": "Occlusion Monitor"
+  },
+  {
+   "default": "0",
+   "fieldname": "alarm_sound_status",
+   "fieldtype": "Check",
+   "label": "Alarm Sound Status"
+  },
+  {
+   "fieldname": "column_break_pkhi0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "keypad_lock_status",
+   "fieldtype": "Check",
+   "label": "Keypad Lock Status"
+  },
+  {
+   "default": "0",
+   "fieldname": "plunger_status_monitor",
+   "fieldtype": "Check",
+   "label": "Plunger Status Monitor"
+  },
+  {
+   "fieldname": "reading_mode_tab",
+   "fieldtype": "Tab Break",
+   "label": "Reading Mode"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Patient Weight"
+  },
+  {
+   "fieldname": "section_break_p8n5a",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "dilution_rate",
+   "fieldtype": "Data",
+   "label": "Dilution Rate"
+  },
+  {
+   "fieldname": "column_break_iqije",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dosage_unit",
+   "fieldtype": "Data",
+   "label": "Dosage Unit"
+  },
+  {
+   "fieldname": "dilution_unit",
+   "fieldtype": "Data",
+   "label": "Dilution Unit"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-27 14:37:44.327406",
+ "modified_by": "Administrator",
+ "module": "Terumo Integration",
+ "name": "Pump",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "device_name"
+}

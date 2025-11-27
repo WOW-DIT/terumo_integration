@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:device_id",
+ "creation": "2025-10-16 12:31:27.442138",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device_name",
+  "ip_address",
+  "column_break_o21ul",
+  "device_id",
+  "operation_status",
+  "section_break_p63vd",
+  "power_type",
+  "column_break_g9k95",
+  "battery_status",
+  "software_version"
+ ],
+ "fields": [
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "IP Address"
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "label": "Device ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Device Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "operation_status",
+   "fieldtype": "Link",
+   "label": "Operation Status",
+   "options": "Rack Operation Status"
+  },
+  {
+   "fieldname": "power_type",
+   "fieldtype": "Link",
+   "label": "Power Type",
+   "options": "Rack Power Type"
+  },
+  {
+   "fieldname": "battery_status",
+   "fieldtype": "Link",
+   "label": "Battery Status",
+   "options": "Rack Battery Status"
+  },
+  {
+   "fieldname": "column_break_o21ul",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_p63vd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_g9k95",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "software_version",
+   "fieldtype": "Data",
+   "label": "Software Version"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-19 13:43:45.734998",
+ "modified_by": "Administrator",
+ "module": "Terumo Integration",
+ "name": "Rack",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "device_name"
+}

@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-10-16 15:04:08.320474",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pump_id",
+  "column_break_gdr80",
+  "pump_type",
+  "section_break_rcbhh",
+  "start_second",
+  "operation_status",
+  "set_flow_rate",
+  "column_break_48o65",
+  "end_second",
+  "alarm",
+  "increment_in_volume_delivered"
+ ],
+ "fields": [
+  {
+   "fetch_from": "pump_id.pump_type",
+   "fieldname": "pump_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Pump Type",
+   "options": "Syringe Pump\nInfusion Pump"
+  },
+  {
+   "fieldname": "start_second",
+   "fieldtype": "Int",
+   "label": "Start Second"
+  },
+  {
+   "fieldname": "end_second",
+   "fieldtype": "Int",
+   "label": "End Second"
+  },
+  {
+   "fieldname": "set_flow_rate",
+   "fieldtype": "Float",
+   "label": "Set Flow Rate"
+  },
+  {
+   "fieldname": "increment_in_volume_delivered",
+   "fieldtype": "Float",
+   "label": "Increment In Volume Delivered"
+  },
+  {
+   "fieldname": "operation_status",
+   "fieldtype": "Link",
+   "label": "Operation Status",
+   "options": "Pump Operation Status"
+  },
+  {
+   "fieldname": "alarm",
+   "fieldtype": "Link",
+   "label": "Alarm",
+   "options": "Pump Alarm Status"
+  },
+  {
+   "fieldname": "pump_id",
+   "fieldtype": "Link",
+   "label": "Pump ID",
+   "options": "Pump",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gdr80",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_rcbhh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_48o65",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-20 11:11:38.785909",
+ "modified_by": "Administrator",
+ "module": "Terumo Integration",
+ "name": "Pump Read",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
