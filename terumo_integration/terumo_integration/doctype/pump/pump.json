@@ -26,6 +26,7 @@
   "volume_delivered",
   "column_break_w20p7",
   "alarm_status",
+  "alarm_description",
   "increment_in_value_delivered",
   "power_status_tab",
   "battery_level",
@@ -246,18 +247,23 @@
    "fieldname": "alarms_template",
    "fieldtype": "Link",
    "label": "Alarms Template",
-   "options": "Pump Alarms Template",
-   "reqd": 1
+   "options": "Pump Alarms Template"
   },
   {
    "fieldname": "volume_delivered",
    "fieldtype": "Float",
    "label": "Volume Delivered (mL)"
+  },
+  {
+   "fetch_from": "alarm_status.description",
+   "fieldname": "alarm_description",
+   "fieldtype": "Read Only",
+   "label": "Alarm Description"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-27 15:44:27.454180",
+ "modified": "2026-01-29 14:19:31.541558",
  "modified_by": "Administrator",
  "module": "Terumo Integration",
  "name": "Pump",

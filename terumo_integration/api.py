@@ -226,10 +226,17 @@ def notify_client(
 @frappe.whitelist()
 def get_pump_devices(patient_room=None):
     if patient_room:
-        return frappe.get_list(
+        pumps = frappe.get_list(
             "Pump",
             filters={"patient_room": patient_room},
             fields=["*"]
         )
+
+        for pump in pumps:
+            if pump.rack:
+                pump.is_rack = True
+                
+                
+        
     
     return frappe.get_list("Pump", fields=["*"])
