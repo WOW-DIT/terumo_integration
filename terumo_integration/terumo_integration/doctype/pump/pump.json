@@ -24,6 +24,7 @@
   "operation_status",
   "set_flow_rate",
   "volume_delivered",
+  "vtbi",
   "column_break_w20p7",
   "alarm_status",
   "alarm_description",
@@ -259,11 +260,16 @@
    "fieldname": "alarm_description",
    "fieldtype": "Read Only",
    "label": "Alarm Description"
+  },
+  {
+   "fieldname": "vtbi",
+   "fieldtype": "Float",
+   "label": "VTBI"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-29 14:19:31.541558",
+ "modified": "2026-02-01 13:21:27.933527",
  "modified_by": "Administrator",
  "module": "Terumo Integration",
  "name": "Pump",

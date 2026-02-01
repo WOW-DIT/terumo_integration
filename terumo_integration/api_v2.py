@@ -1,6 +1,7 @@
 import frappe
-import json
 import requests
+import json
+import subprocess
 
 @frappe.whitelist(allow_guest=True)
 def event_webhook(
@@ -65,6 +66,7 @@ def event_webhook(
                 operation_status=pump_op_status,
                 set_flow_rate=set_flow_rate,
                 increment_rate=increment_rate,
+                vtbi=vtbi,
                 alarm_status=pump_alarm_status,
                 syringe_status=syringe_status,
                 volume_delivered=volume_delivered,
@@ -72,10 +74,11 @@ def event_webhook(
                 rack_id=rack.name,
             )
 
+            rack_status["operation_status"] = rack.operation_status_description
             return notify_client(
                 device_name=pump.device_name,
                 device_id=pump_id,
-                operation_status=pump_op_status,
+                operation_status=rack.operation_status_description,
                 flow_rate=set_flow_rate,
                 increment_rate=increment_rate,
                 alarm_status=pump_alarm_status,
@@ -101,69 +104,144 @@ def event_webhook(
                 pass
         
         ## Update rack status
+        # return notify_client(
+        #     device_name=pump.device_name,
+        #     device_id=pump_id,
+        #     operation_status=pump_op_status,
+        #     flow_rate=set_flow_rate,
+        #     increment_rate=increment_rate,
+        #     alarm_status=pump_alarm_status,
+        #     channel=channel_id,
+        #     patient_id=pump.patient_id,
+        #     is_rack=is_rack,
+        #     rack_id=rack.name,
+        #     rack_name=rack.device_name,
+        #     rack_status=rack_status,
+        # )
+    else:
+        pump_op_status = map_pump_op_status(pump_op_status)
+
+        pump = update_pump(
+            device_id=pump_id,
+            pump_type=pump_type,
+            operation_status=pump_op_status,
+            set_flow_rate=set_flow_rate,
+            increment_rate=increment_rate,
+            vtbi=vtbi,
+            alarm_status=None,
+            syringe_status=syringe_status,
+            volume_delivered=volume_delivered,
+            pump_power_status=pump_power_status,
+        )
+
+        if not pump.alarms_template:
+            active_alarms = []
+        else:
+            active_alarms = update_alarm_statuses(pump.alarms_template, pump_alarm_status)
+
         return notify_client(
             device_name=pump.device_name,
             device_id=pump_id,
             operation_status=pump_op_status,
             flow_rate=set_flow_rate,
             increment_rate=increment_rate,
-            alarm_status=pump_alarm_status,
-            channel=channel_id,
+            alarm_status=None,
+            vtbi=vtbi,
+            active_alarms=active_alarms,
+            pump_power_status=pump_power_status,
             patient_id=pump.patient_id,
             is_rack=is_rack,
-            rack_id=rack.name,
-            rack_name=rack.device_name,
-            rack_status=rack_status,
+            rack_id=pump.rack,
         )
-    
-    pump_op_status = map_pump_op_status(pump_op_status)
 
-    pump = update_pump(
-        device_id=pump_id,
-        pump_type=pump_type,
-        operation_status=pump_op_status,
-        set_flow_rate=set_flow_rate,
-        increment_rate=increment_rate,
-        alarm_status=None,
-        syringe_status=syringe_status,
-        volume_delivered=volume_delivered,
-        pump_power_status=pump_power_status,
+        create_pump_read(
+            pump_id=pump.name,
+            start_second=start_second,
+            end_second=end_second,
+            operation_status=pump_op_status,
+            set_flow_rate=set_flow_rate,
+            increment_in_value_delivered=increment_rate,
+            # alarm=pump_alarm_status,
+        )
+        if pump.patient_id:
+            ## Send to HIS
+            pass
+
+        frappe.db.commit()
+
+
+@frappe.whitelist(allow_guest=True)
+def check_devices_connectivity():
+    disconnected = []
+    connected = []
+
+    try:
+        neigh_output = subprocess.check_output(
+            ["ip", "neigh"],
+            stderr=subprocess.DEVNULL
+        ).decode()
+    except Exception:
+        return {"error": "ip neigh failed"}
+
+    neigh_lines = neigh_output.splitlines()
+
+    pumps = frappe.get_all(
+        "Pump",
     )
 
-    if not pump.alarms_template:
-        active_alarms = []
-    else:
-        active_alarms = update_alarm_statuses(pump.alarms_template, pump_alarm_status)
+    for pump in pumps:
+        p = frappe.get_doc("Pump", pump.name)
 
-    return notify_client(
-        device_name=pump.device_name,
-        device_id=pump_id,
-        operation_status=pump_op_status,
-        flow_rate=set_flow_rate,
-        increment_rate=increment_rate,
-        alarm_status=None,
-        vtbi=vtbi,
-        active_alarms=active_alarms,
-        pump_power_status=pump_power_status,
-        patient_id=pump.patient_id,
-        is_rack=is_rack,
-        rack_id=pump.rack,
-    )
+        ip = p.ip_address
+        if not ip:
+            continue
 
-    create_pump_read(
-        pump_id=pump.name,
-        start_second=start_second,
-        end_second=end_second,
-        operation_status=pump_op_status,
-        set_flow_rate=set_flow_rate,
-        increment_in_value_delivered=increment_rate,
-        # alarm=pump_alarm_status,
-    )
-    if pump.patient_id:
-        ## Send to HIS
-        pass
+        state = None
 
+        for line in neigh_lines:
+            if line.startswith(ip + " "):
+                state = line.split()[-1]
+                break
+
+        # ما ظهر في الجدول
+        if not state:
+            mark_offline(p)
+            disconnected.append(p.device_name)
+            continue
+
+        # الحالات الطبيعية
+        if state in ("REACHABLE", "DELAY", "PROBE"):
+            connected.append(p.device_name)
+            continue
+
+        # حالات غير متصل
+        if state in ("STALE", "FAILED", "INCOMPLETE"):
+            mark_offline(p)
+            disconnected.append(p.device_name)
+
+    return {
+        "connected": connected,
+        "disconnected": disconnected
+    }
+
+
+def mark_offline(pump):
+    pump.operation_status = "500"
+    pump.save(ignore_permissions=True)
     frappe.db.commit()
+
+    notify_client(
+        device_id=pump.name,
+        device_name=pump.device_name,
+        operation_status="500",
+        flow_rate=0,
+        increment_rate=0,
+        alarm_status=None,
+        active_alarms=[],
+        pump_power_status={},
+        vtbi=0,
+        channel=None,
+    )
 
 
 def update_rack(
@@ -191,13 +269,13 @@ def update_rack(
     return rack
 
 
-
 def update_pump(
     device_id,
     pump_type,
     operation_status,
     set_flow_rate,
     increment_rate,
+    vtbi=None,
     alarm_status: str=None,
     syringe_status: int=0,
     volume_delivered: float=0.0,
@@ -213,6 +291,8 @@ def update_pump(
         pump.device_id = device_id
         pump.device_name = device_id
 
+    if vtbi:
+        pump.vtbi = vtbi
     pump.syringe_status = syringe_status
     pump.operation_status = operation_status
     pump.set_flow_rate = set_flow_rate
@@ -277,6 +357,7 @@ def notify_client(
         alarm_status,
         "description",
     )
+    
     realtime_message = {
         "device_name": device_name,
         "device_id": device_id,
@@ -303,6 +384,12 @@ def notify_client(
 
     return realtime_message
 
+@frappe.whitelist()
+def get_patient_rooms():
+    return frappe.get_all(
+        "Patient Room",
+        fields=["*"]
+    )
 
 @frappe.whitelist()
 def get_pump_devices(patient_room=None):
